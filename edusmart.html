@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EduSmart</title>
+<style>
+:root{--bg:#070b1a;--nav:#0b1230;--card:#121c42;--line:rgba(255,255,255,.12);--tx:#e8ecf8;--mut:#94a3b8;--blue:#3b82f6;--vio:#8b5cf6;--ok:#4ade80;--bad:#f87171}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,Segoe UI,Roboto,sans-serif}
+a{color:var(--blue)}
+h1{font-size:1.7rem;margin:.2em 0 .5em}h2{font-size:1.1rem;margin:0 0 .6em}
+.shell{display:flex;min-height:100vh}
+nav{width:230px;background:var(--nav);border-right:1px solid var(--line);padding:14px;display:flex;flex-direction:column;gap:4px}
+nav .logo{font-weight:800;font-size:1.25rem;color:var(--blue);padding:8px 12px}
+nav a,nav button{display:block;text-align:left;color:var(--tx);text-decoration:none;background:none;border:0;font:inherit;padding:9px 12px;border-radius:8px;cursor:pointer}
+nav a:hover,nav button:hover,nav a.on{background:rgba(255,255,255,.1)}
+nav .out{margin-top:auto}
+main{flex:1;padding:28px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:16px}
+.grid .card{margin:0}.big{font-size:2rem;font-weight:700}.mut{color:var(--mut)}
+.btn{display:inline-block;background:var(--blue);color:#fff;border:0;border-radius:8px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;margin:3px 6px 3px 0}
+.btn:hover{background:#2563eb}.btn:disabled{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px solid rgba(255,255,255,.25)}.ghost:hover{background:rgba(255,255,255,.1)}
+input[type=text],input[type=email],input[type=password],input[type=search]{width:100%;background:var(--nav);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;margin-bottom:12px}
+:focus-visible{outline:2px solid var(--vio);outline-offset:2px}
+.center{min-height:100vh;display:grid;place-items:center;padding:16px}
+.box{width:100%;max-width:380px}
+.err{color:var(--bad);margin:0 0 10px}
+.bar{height:8px;border-radius:4px;background:var(--card);margin:10px 0}.bar i{display:block;height:100%;border-radius:4px;background:var(--vio)}
+.opt{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:11px;margin:8px 0;cursor:pointer}
+.opt:hover{background:rgba(255,255,255,.05)}.opt.sel{border-color:var(--vio);background:rgba(139,92,246,.18)}
+.row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.lesson{max-width:680px;white-space:pre-line}
+.hero{max-width:680px;margin:auto;padding:24px}.hero h1{font-size:2.6rem;line-height:1.15}
+@media(max-width:760px){.shell{flex-direction:column}nav{width:auto;flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line)}nav .out{margin:0 0 0 auto}main{padding:18px}}
+@media(prefers-reduced-motion:no-preference){.btn{transition:background .15s}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ===== DATA DEMO: seluruh materi & soal di bawah ini hanya contoh untuk demonstrasi =====
+const SUBJECTS=[
+{id:'mat',name:'Matematika',level:'SMP',grade:7,
+ lessons:[
+  {id:'m1',title:'Mengenal bilangan bulat',body:'Bilangan bulat mencakup bilangan negatif, nol, dan bilangan positif.\n\nContoh: -3, 0, 5.\n\nPada garis bilangan, semakin ke kanan nilainya semakin besar.'},
+  {id:'m2',title:'Penjumlahan dan pengurangan',body:'Menjumlahkan bilangan positif berarti bergerak ke kanan pada garis bilangan, menjumlahkan bilangan negatif berarti bergerak ke kiri.\n\nContoh: -3 + 5 = 2.'}],
+ quiz:{id:'qm',title:'Kuis Bilangan Bulat',min:5,qs:[
+  {t:'Hasil dari -3 + 5 adalah ...',o:['-8','2','-2','8'],a:1,e:'-3 + 5 = 2 (bergerak 5 langkah ke kanan dari -3).'},
+  {t:'Bilangan terkecil di antara -4, -1, 0, 3 adalah ...',o:['-1','0','-4','3'],a:2,e:'Semakin ke kiri pada garis bilangan, nilainya semakin kecil.'},
+  {t:'Hasil dari 7 - 10 adalah ...',o:['3','-3','17','-17'],a:1,e:'7 - 10 = -3.'}]}},
+{id:'ipa',name:'IPA',level:'SMP',grade:8,
+ lessons:[
+  {id:'i1',title:'Pengertian gaya',body:'Gaya adalah tarikan atau dorongan yang dapat mengubah gerak atau bentuk benda.\n\nSatuan gaya dalam SI adalah newton (N).'},
+  {id:'i2',title:'Hukum Newton I',body:'Benda yang diam akan tetap diam, dan benda yang bergerak lurus beraturan akan tetap demikian, selama resultan gaya yang bekerja sama dengan nol.'}],
+ quiz:{id:'qi',title:'Kuis Gaya',min:5,qs:[
+  {t:'Satuan gaya dalam SI adalah ...',o:['joule','newton','watt','pascal'],a:1,e:'Gaya diukur dalam newton (N).'},
+  {t:'Hukum Newton I juga disebut hukum ...',o:['aksi-reaksi','percepatan','kelembaman','gravitasi'],a:2,e:'Kelembaman (inersia): benda mempertahankan keadaan geraknya.'}]}}
+];
+const LESSONS=SUBJECTS.flatMap(s=>s.lessons.map(l=>({...l,subject:s.name})));
+
+// ===== Penyimpanan (localStorage) =====
+let S;try{S=JSON.parse(localStorage.getItem('edusmart'))}catch(e){}
+S=S||{users:[],session:null,done:{},attempts:[]};
+const save=()=>{try{localStorage.setItem('edusmart',JSON.stringify(S))}catch(e){}};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const me=()=>S.users.find(u=>u.id===S.session);
+async function hash(p){
+  if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('edusmart:'+p));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+  return btoa('edusmart:'+p);
+}
+
+// ===== Penilaian: fungsi murni =====
+function grade(qs,ans){const score=qs.filter((q,i)=>ans[i]===q.a).length;return{score,total:qs.length,pct:qs.length?Math.round(score/qs.length*100):0}}
+
+// ===== Tampilan =====
+const shell=(c,on)=>`<div class="shell"><nav><div class="logo">EduSmart</div>
+<a href="#/dashboard" class="${on==='d'?'on':''}">Dasbor</a><a href="#/subjects" class="${on==='s'?'on':''}">Materi</a>
+<button class="out" onclick="logout()">Keluar (${esc(me().name.split(' ')[0])})</button></nav><main>${c}</main></div>`;
+const out=h=>$('#app').innerHTML=h;
+
+function landing(){out(`<div class="hero center" style="display:block;padding-top:15vh"><h1>Belajar terarah, nilai terpantau.</h1>
+<p class="mut" style="font-size:1.1rem">Materi, kuis dengan penilaian otomatis, dan progres belajar untuk siswa SMP dan SMA.</p>
+<a class="btn" href="#/register">Mulai belajar</a><a class="btn ghost" href="#/login">Masuk</a></div>`)}
+
+function auth(mode){const reg=mode==='register';
+out(`<div class="center"><form class="card box" onsubmit="return doAuth(event,'${mode}')"><h1>${reg?'Buat akun siswa':'Masuk ke EduSmart'}</h1>
+${reg?'<input type="text" name="name" placeholder="Nama lengkap" required>':''}
+<input type="email" name="email" placeholder="Email" required>
+<input type="password" name="password" placeholder="Kata sandi (min. 8 karakter)" required>
+<p class="err" role="alert" id="err"></p><button class="btn" style="width:100%">${reg?'Daftar':'Masuk'}</button>
+<p class="mut">${reg?'Sudah punya akun? <a href="#/login">Masuk</a>':'Belum punya akun? <a href="#/register">Daftar</a>'}</p></form></div>`)}
+
+async function doAuth(e,mode){e.preventDefault();const f=new FormData(e.target),err=m=>($('#err').textContent=m,false);
+const email=String(f.get('email')).trim().toLowerCase(),pw=String(f.get('password'));
+if(mode==='register'){const name=String(f.get('name')).trim();
+ if(name.length<2)return err('Nama minimal 2 karakter');if(pw.length<8)return err('Kata sandi minimal 8 karakter');
+ if(S.users.some(u=>u.email===email))return err('Email sudah terdaftar');
+ const u={id:'u'+Date.now(),name,email,hash:await hash(pw)};S.users.push(u);S.session=u.id;
+}else{const u=S.users.find(u=>u.email===email);if(!u||u.hash!==await hash(pw))return err('Email atau kata sandi salah');S.session=u.id}
+save();location.hash='#/dashboard';return false}
+function logout(){S.session=null;save();location.hash='#/login'}
+
+function dashboard(){const u=me(),done=S.done[u.id]||[],at=S.attempts.filter(a=>a.uid===u.id);
+const pcts=at.map(a=>Math.round(a.score/a.total*100)),avg=pcts.length?Math.round(pcts.reduce((a,b)=>a+b,0)/pcts.length):'-';
+const next=LESSONS.find(l=>!done.includes(l.id));
+let chart='<p class="mut">Belum ada kuis. Kerjakan kuis pertamamu untuk melihat grafik.</p>';
+if(pcts.length){const W=500,H=160,pts=pcts.map((p,i)=>[pcts.length>1?20+i*(W-40)/(pcts.length-1):W/2,H-10-p*(H-30)/100]);
+ chart=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-height:220px" role="img" aria-label="Grafik nilai kuis"><polyline fill="none" stroke="#8b5cf6" stroke-width="2.5" points="${pts.map(p=>p.join(',')).join(' ')}"/>${pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#3b82f6"><title>${pcts[i]}</title></circle>`).join('')}</svg>`}
+out(shell(`<h1>Halo, ${esc(u.name)}</h1><div class="grid">
+<div class="card"><div class="mut">Materi selesai</div><div class="big">${done.length} / ${LESSONS.length}</div></div>
+<div class="card"><div class="mut">Kuis dikerjakan</div><div class="big">${at.length}</div></div>
+<div class="card"><div class="mut">Rata-rata nilai</div><div class="big">${avg}</div></div></div>
+<div class="card"><h2>Perkembangan nilai</h2>${chart}</div>
+<div class="card"><h2>Materi berikutnya</h2>${next?`<a class="btn" href="#/lesson/${next.id}">${esc(next.title)}</a>`:'<p class="mut">Semua materi sudah selesai.</p>'}</div>
+<div class="card"><h2>Riwayat kuis</h2>${at.length?at.slice().reverse().map(a=>`<div class="row"><span>${esc(a.title)}</span><span class="mut">${new Date(a.date).toLocaleString('id-ID')}: ${a.score}/${a.total}</span></div>`).join(''):'<p class="mut">Belum ada riwayat.</p>'}</div>`,'d'))}
+
+function subjects(){out(shell(`<h1>Katalog materi</h1><input type="search" id="q" placeholder="Cari mata pelajaran atau materi…" oninput="list(this.value)"><div id="list"></div>`,'s'));list('')}
+function list(q){q=q.trim().toLowerCase();const done=S.done[me().id]||[];
+const r=SUBJECTS.filter(s=>!q||(s.name+' '+s.lessons.map(l=>l.title).join(' ')).toLowerCase().includes(q));
+$('#list').innerHTML=r.length?r.map(s=>`<section class="card"><h2>${s.name} <span class="mut">${s.level} kelas ${s.grade}</span></h2>
+${s.lessons.map(l=>`<a class="btn ghost" href="#/lesson/${l.id}">${done.includes(l.id)?'✓ ':''}${esc(l.title)}</a>`).join('')}
+<a class="btn" href="#/quiz/${s.quiz.id}">Kuis: ${esc(s.quiz.title)}</a></section>`).join(''):'<p class="mut">Tidak ada yang cocok dengan pencarian.</p>'}
+
+function lesson(id){const l=LESSONS.find(x=>x.id===id);if(!l)return notFound();const u=me(),d=(S.done[u.id]||[]).includes(id);
+out(shell(`<article class="lesson"><p class="mut">${l.subject}</p><h1>${esc(l.title)}</h1><p>${esc(l.body)}</p>
+<button class="btn" ${d?'disabled':''} onclick="complete('${id}')">${d?'Materi selesai':'Tandai selesai'}</button><a class="btn ghost" href="#/subjects">Kembali</a></article>`,'s'))}
+function complete(id){const u=me();S.done[u.id]=[...new Set([...(S.done[u.id]||[]),id])];save();lesson(id)}
+
+// ===== Kuis =====
+let Q;
+function quiz(id){const s=SUBJECTS.find(s=>s.quiz.id===id);if(!s)return notFound();const z=s.quiz;
+Q={z,i:0,ans:[],start:null,left:z.min*60};
+out(shell(`<div class="card" style="max-width:560px"><h1>${esc(z.title)}</h1><p class="mut">${z.qs.length} soal, waktu ${z.min} menit. Jawaban dikirim otomatis saat waktu habis.</p><button class="btn" onclick="startQ()">Mulai kuis</button></div>`,'s'))}
+function startQ(){Q.start=new Date().toISOString();timer=setInterval(()=>{Q.left--;const t=$('#t');if(t)t.textContent=Math.floor(Q.left/60)+':'+String(Q.left%60).padStart(2,'0');if(Q.left<=0)finishQ()},1000);drawQ()}
+function drawQ(){const{z,i,ans}=Q,q=z.qs[i];
+out(shell(`<div style="max-width:640px"><div class="row mut"><span>Soal ${i+1} dari ${z.qs.length}</span><span id="t">${Math.floor(Q.left/60)}:${String(Q.left%60).padStart(2,'0')}</span></div>
+<div class="bar"><i style="width:${(i+1)/z.qs.length*100}%"></i></div>
+<div class="card"><p><b>${esc(q.t)}</b></p>${q.o.map((o,k)=>`<div class="opt ${ans[i]===k?'sel':''}" tabindex="0" role="radio" aria-checked="${ans[i]===k}" onclick="pick(${k})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pick(${k})}">${esc(o)}</div>`).join('')}</div>
+<div class="row"><button class="btn ghost" ${i?'':'disabled'} onclick="Q.i--;drawQ()">Sebelumnya</button>
+${i<z.qs.length-1?'<button class="btn" onclick="Q.i++;drawQ()">Berikutnya</button>':'<button class="btn" onclick="confirmEnd()">Akhiri kuis</button>'}</div></div>`,'s'))}
+function pick(k){Q.ans[Q.i]=k;drawQ()}
+function confirmEnd(){const n=Q.z.qs.filter((_,i)=>Q.ans[i]===undefined).length;if(!n||confirm(n+' soal belum dijawab. Akhiri kuis?'))finishQ()}
+function finishQ(){clearInterval(timer);if(!Q||Q.done)return;Q.done=true;const{z,ans}=Q,g=grade(z.qs,ans);
+S.attempts.push({uid:me().id,quizId:z.id,title:z.title,score:g.score,total:g.total,date:new Date().toISOString()});save();
+out(shell(`<div style="max-width:640px"><h1>Nilai: ${g.pct} (${g.score}/${g.total} benar)</h1>${z.qs.map((q,i)=>{const ok=ans[i]===q.a;
+return `<div class="card"><p><b>${i+1}. ${esc(q.t)}</b></p><p class="${ok?'ok':'bad'}">${ok?'Benar':'Salah. Jawaban benar: '+esc(q.o[q.a])}</p><p class="mut">${esc(q.e)}</p></div>`}).join('')}
+<a class="btn" href="#/dashboard">Ke dasbor</a><a class="btn ghost" href="#/quiz/${z.id}">Ulangi kuis</a></div>`,'s'))}
+
+function notFound(){out(`<div class="center"><div style="text-align:center"><h1>Halaman tidak ditemukan</h1><a class="btn" href="#/">Kembali</a></div></div>`)}
+
+// ===== Router + proteksi halaman =====
+let timer;
+function route(){clearInterval(timer);const[p,id]=location.hash.slice(2).split('/'),u=me(),pub=['','login','register'];
+if(!u&&!pub.includes(p)){location.hash='#/login';return}
+if(u&&pub.includes(p)){location.hash='#/dashboard';return}
+const v={'':landing,login:()=>auth('login'),register:()=>auth('register'),dashboard,subjects,lesson:()=>lesson(id),quiz:()=>quiz(id)}[p];
+v?v():notFound()}
+addEventListener('hashchange',route);route();
+</script>
+</body>
+</html>
